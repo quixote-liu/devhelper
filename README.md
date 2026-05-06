@@ -84,7 +84,9 @@
 - Node.js 18+
 - npm 9+
 
-### 启动后端
+### 开发模式
+
+#### 启动后端
 
 ```bash
 cd backend
@@ -94,7 +96,7 @@ go run cmd/server/main.go
 # API 文档: http://localhost:8080/swagger/index.html
 ```
 
-### 启动前端
+#### 启动前端
 
 ```bash
 cd frontend
@@ -104,12 +106,54 @@ npm run dev
 # 访问 http://localhost:5173
 ```
 
-### 使用 Makefile（推荐）
+#### 使用 Makefile（推荐）
 
 ```bash
 make dev        # 同时启动前后端
 make backend    # 仅启动后端
 make frontend   # 仅启动前端
+```
+
+### 生产部署
+
+#### 方式一：后端托管前端（单一入口）
+
+```bash
+# 1. 构建前后端
+make build-prod
+
+# 2. 配置环境变量
+cd backend
+cp .env.example .env
+# 编辑 .env，设置：
+# SERVE_STATIC=true
+# STATIC_FILES_PATH=../frontend/dist
+
+# 3. 运行
+../build/devhelper
+# 访问 http://localhost:8080（前端页面和 API 都在此端口）
+```
+
+或使用 Makefile 一键运行：
+```bash
+make run-prod
+```
+
+#### 方式二：前后端分离部署
+
+**前端**（部署到 Nginx/CDN）：
+```bash
+cd frontend
+npm run build
+# 将 dist/ 目录部署到 Web 服务器
+```
+
+**后端**（独立部署）：
+```bash
+cd backend
+go build -o devhelper cmd/server/main.go
+# 配置 .env，保持 SERVE_STATIC=false
+./devhelper
 ```
 
 ## 项目结构
@@ -159,11 +203,50 @@ devhelper/
 | `JWT_ACCESS_EXPIRY` | `15m` | Access Token 有效期 |
 | `JWT_REFRESH_EXPIRY` | `168h` | Refresh Token 有效期 |
 | `SERVER_PORT` | `8080` | 服务端口 |
-| `CORS_ORIGINS` | `http://localhost:5173` | 允许的跨域来源 |
+| `CORS_ORIGINS` | `http://localhost:5173` | 允许的跨域来源（开发模式） |
 | `ADMIN_INIT_EMAIL` | — | 首次启动时自动设为管理员的邮箱 |
+| `SERVE_STATIC` | `false` | 是否托管前端静态文件（生产模式设为 `true`） |
+| `STATIC_FILES_PATH` | `../frontend/dist` | 前端静态文件目录路径 |
 
 ### frontend/.env
 
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `VITE_API_BASE_URL` | `http://localhost:8080/api/v1` | 后端 API 地址 |
+
+## 前端打包详解
+
+### Vite 构建流程
+
+执行 `npm run build` 时，Vite 会：
+
+1. **TypeScript 编译检查** (`tsc -b`)
+2. **资源打包**：
+   - 解析 `index.html` 作为入口
+   - 处理所有 `import` 的 JS/TS/CSS/图片等资源
+   - Tree-shaking 移除未使用代码
+   - 代码分割和压缩
+   - 生成带 hash 的文件名（缓存优化）
+
+3. **输出结构** (`frontend/dist/`)：
+
+   ```text
+   dist/
+   ├── index.html              # 入口 HTML
+   ├── favicon.svg             # 网站图标
+   ├── icons.svg               # SVG 图标集
+   └── assets/                 # 所有 JS/CSS/图片资源
+       ├── index-[hash].js     # 打包后的 JS（带版本 hash）
+       ├── index-[hash].css    # 打包后的 CSS
+       └── ...
+   ```
+
+### 后端托管原理
+
+后端通过 Gin 框架提供静态文件服务：
+
+- **静态资源路由**：`/assets/*`、`/favicon.svg`、`/icons.svg` → 返回对应文件
+- **API 路由**：`/api/v1/*` → 返回 JSON 数据
+- **SPA Fallback**：其他所有路径 → 返回 `index.html`（前端路由接管）
+
+这样用户访问任何前端路由（如 `/login`、`/dashboard`）时，服务器都返回 `index.html`，然后由前端 React Router 解析并渲染对应页面。

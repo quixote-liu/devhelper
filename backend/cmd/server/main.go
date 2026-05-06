@@ -43,7 +43,11 @@ func main() {
 	jsonSvc := service.NewJsonService()
 
 	r := gin.Default()
-	api.SetupRoutes(r, cfg.CORSOrigins, authSvc, jsonSvc, userRepo, historyRepo, schemaRepo)
+	api.SetupRoutes(r, cfg, authSvc, jsonSvc, userRepo, historyRepo, schemaRepo)
+
+	if cfg.ServeStatic {
+		log.Printf("serving static files from: %s", cfg.StaticFilesPath)
+	}
 
 	log.Printf("server starting on :%s", cfg.ServerPort)
 	if err := r.Run(":" + cfg.ServerPort); err != nil {

@@ -15,6 +15,8 @@ type Config struct {
 	ServerPort        string
 	CORSOrigins       string
 	AdminInitEmail    string
+	ServeStatic       bool
+	StaticFilesPath   string
 }
 
 func Load() (*Config, error) {
@@ -37,6 +39,8 @@ func Load() (*Config, error) {
 		ServerPort:       getEnv("SERVER_PORT", "8080"),
 		CORSOrigins:      getEnv("CORS_ORIGINS", "http://localhost:5173"),
 		AdminInitEmail:   getEnv("ADMIN_INIT_EMAIL", ""),
+		ServeStatic:      getEnv("SERVE_STATIC", "false") == "true",
+		StaticFilesPath:  getEnv("STATIC_FILES_PATH", "../frontend/dist"),
 	}, nil
 }
 

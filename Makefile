@@ -1,4 +1,4 @@
-.PHONY: dev backend frontend build build-backend build-frontend clean install lint test help
+.PHONY: dev backend frontend build build-backend build-frontend build-prod run-prod clean install lint test help
 
 # 默认目标
 .DEFAULT_GOAL := help
@@ -31,6 +31,14 @@ build-backend: ## 构建后端二进制
 build-frontend: ## 构建前端静态文件
 	cd $(FRONTEND_DIR) && npm run build
 
+build-prod: build-frontend build-backend ## 生产构建（前端+后端）
+
+# --- 运行 ---
+
+run-prod: build-prod ## 生产模式运行（后端托管前端）
+	@echo "Starting in production mode..."
+	cd $(BACKEND_DIR) && SERVE_STATIC=true STATIC_FILES_PATH=../$(FRONTEND_DIR)/dist ../$(BUILD_DIR)/$(BINARY_NAME)
+
 # --- 依赖安装 ---
 
 install: ## 安装前后端依赖
@@ -58,7 +66,7 @@ lint-frontend: ## 运行前端 lint
 test: ## 运行后端测试
 	cd $(BACKEND_DIR) && go test ./...
 
-# --- 清理 ---
+# --   - 清理 ---
 
 clean: ## 清理构建产物
 	rm -rf $(BUILD_DIR)
