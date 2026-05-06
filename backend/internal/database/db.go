@@ -1,7 +1,8 @@
 package database
 
 import (
-	"github.com/lcs/devhelper/internal/models"
+	"devhelper/internal/models"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

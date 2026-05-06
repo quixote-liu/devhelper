@@ -1,9 +1,10 @@
 package api
 
 import (
+	"devhelper/internal/repository"
+	"devhelper/internal/service"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lcs/devhelper/internal/repository"
-	"github.com/lcs/devhelper/internal/service"
 )
 
 func SetupRoutes(

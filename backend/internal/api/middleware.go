@@ -3,8 +3,9 @@ package api
 import (
 	"strings"
 
+	"devhelper/internal/utils"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lcs/devhelper/internal/utils"
 )
 
 var jwtSecret string

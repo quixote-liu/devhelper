@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"devhelper/internal/utils"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lcs/devhelper/internal/utils"
 )
 
 func parseUintParam(c *gin.Context, name string, out *uint) (uint, error) {

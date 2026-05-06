@@ -4,10 +4,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/lcs/devhelper/internal/config"
-	"github.com/lcs/devhelper/internal/models"
-	"github.com/lcs/devhelper/internal/repository"
-	"github.com/lcs/devhelper/internal/utils"
+	"devhelper/internal/config"
+	"devhelper/internal/models"
+	"devhelper/internal/repository"
+	"devhelper/internal/utils"
+
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )

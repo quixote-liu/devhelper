@@ -1,7 +1,8 @@
 package repository
 
 import (
-	"github.com/lcs/devhelper/internal/models"
+	"devhelper/internal/models"
+
 	"gorm.io/gorm"
 )
 

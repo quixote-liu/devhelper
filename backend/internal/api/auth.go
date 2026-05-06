@@ -3,9 +3,10 @@ package api
 import (
 	"net/http"
 
+	"devhelper/internal/service"
+	"devhelper/internal/utils"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lcs/devhelper/internal/service"
-	"github.com/lcs/devhelper/internal/utils"
 )
 
 type AuthHandler struct {

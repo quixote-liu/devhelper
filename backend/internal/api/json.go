@@ -1,11 +1,12 @@
 package api
 
 import (
+	"devhelper/internal/models"
+	"devhelper/internal/repository"
+	"devhelper/internal/service"
+	"devhelper/internal/utils"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lcs/devhelper/internal/models"
-	"github.com/lcs/devhelper/internal/repository"
-	"github.com/lcs/devhelper/internal/service"
-	"github.com/lcs/devhelper/internal/utils"
 )
 
 type JsonHandler struct {

@@ -3,12 +3,13 @@ package main
 import (
 	"log"
 
+	"devhelper/internal/api"
+	"devhelper/internal/config"
+	"devhelper/internal/database"
+	"devhelper/internal/repository"
+	"devhelper/internal/service"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lcs/devhelper/internal/api"
-	"github.com/lcs/devhelper/internal/config"
-	"github.com/lcs/devhelper/internal/database"
-	"github.com/lcs/devhelper/internal/repository"
-	"github.com/lcs/devhelper/internal/service"
 )
 
 func main() {

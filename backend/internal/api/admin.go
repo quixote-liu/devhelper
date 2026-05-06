@@ -4,10 +4,11 @@ import (
 	"errors"
 	"strconv"
 
+	"devhelper/internal/models"
+	"devhelper/internal/repository"
+	"devhelper/internal/utils"
+
 	"github.com/gin-gonic/gin"
-	"github.com/lcs/devhelper/internal/models"
-	"github.com/lcs/devhelper/internal/repository"
-	"github.com/lcs/devhelper/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
