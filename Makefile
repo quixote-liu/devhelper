@@ -15,7 +15,10 @@ dev: ## 同时启动前后端（开发模式）
 	@echo "Starting backend and frontend..."
 	$(MAKE) backend & $(MAKE) frontend & wait
 
-backend: ## 启动后端（开发模式）
+$(BACKEND_DIR)/.env:
+	cp $(BACKEND_DIR)/.env.example $(BACKEND_DIR)/.env
+
+backend: $(BACKEND_DIR)/.env ## 启动后端（开发模式）
 	cd $(BACKEND_DIR) && go run cmd/server/main.go
 
 frontend: ## 启动前端（开发模式）
@@ -26,9 +29,11 @@ frontend: ## 启动前端（开发模式）
 build: build-backend build-frontend ## 构建前后端
 
 build-backend: ## 构建后端二进制
+	cp $(BACKEND_DIR)/.env.example $(BACKEND_DIR)/.env
 	cd $(BACKEND_DIR) && go build -o ../$(BUILD_DIR)/$(BINARY_NAME) cmd/server/main.go
 
 build-frontend: ## 构建前端静态文件
+	cp $(FRONTEND_DIR)/.env.example $(FRONTEND_DIR)/.env
 	cd $(FRONTEND_DIR) && npm run build
 
 build-prod: build-frontend build-backend ## 生产构建（前端+后端）
@@ -71,6 +76,8 @@ test: ## 运行后端测试
 clean: ## 清理构建产物
 	rm -rf $(BUILD_DIR)
 	rm -rf $(FRONTEND_DIR)/dist
+	rm $(BACKEND_DIR)/.env
+	rm $(FRONTEND_DIR)/.env
 
 # --- 帮助 ---
 
