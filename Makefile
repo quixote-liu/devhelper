@@ -29,20 +29,27 @@ frontend: ## 启动前端（开发模式）
 build: build-backend build-frontend ## 构建前后端
 
 build-backend: ## 构建后端二进制
-	cp $(BACKEND_DIR)/.env.example $(BACKEND_DIR)/.env
+	@mkdir -p $(BUILD_DIR)
 	cd $(BACKEND_DIR) && go build -o ../$(BUILD_DIR)/$(BINARY_NAME) cmd/server/main.go
+	@# 复制 .env 到 build/ 并调整路径配置
+	cp $(BACKEND_DIR)/.env.example $(BUILD_DIR)/.env
+	@# 修正 build/.env 中的相对路径（适配从 build/ 目录运行）
+	@sed -i 's|DB_PATH=./devhelper.db|DB_PATH=./devhelper.db|g' $(BUILD_DIR)/.env
+	@sed -i 's|STATIC_FILES_PATH=../frontend/dist|STATIC_FILES_PATH=./static|g' $(BUILD_DIR)/.env
 
 build-frontend: ## 构建前端静态文件
 	cp $(FRONTEND_DIR)/.env.example $(FRONTEND_DIR)/.env
 	cd $(FRONTEND_DIR) && npm run build
+	mkdir -p $(BUILD_DIR)/static
+	cp -r $(FRONTEND_DIR)/dist/. $(BUILD_DIR)/static/
 
-build-prod: build-frontend build-backend ## 生产构建（前端+后端）
+build-prod: build-frontend build-backend ## 生产构建（前端+后端，产物统一在 build/）
 
 # --- 运行 ---
 
 run-prod: build-prod ## 生产模式运行（后端托管前端）
 	@echo "Starting in production mode..."
-	cd $(BACKEND_DIR) && SERVE_STATIC=true STATIC_FILES_PATH=../$(FRONTEND_DIR)/dist ../$(BUILD_DIR)/$(BINARY_NAME)
+	cd $(BUILD_DIR) && SERVE_STATIC=true STATIC_FILES_PATH=./static ./$(BINARY_NAME)
 
 # --- 依赖安装 ---
 
@@ -51,25 +58,10 @@ install: ## 安装前后端依赖
 	cd $(FRONTEND_DIR) && npm install
 
 install-backend: ## 安装后端依赖
-	cd $(BACKEND_DIR) && go mod download
+	cd $(BACKEND_DIR) && go mod tidy
 
 install-frontend: ## 安装前端依赖
 	cd $(FRONTEND_DIR) && npm install
-
-# --- 代码质量 ---
-
-lint: ## 运行前后端 lint
-	cd $(BACKEND_DIR) && go vet ./...
-	cd $(FRONTEND_DIR) && npm run lint
-
-lint-backend: ## 运行后端 lint
-	cd $(BACKEND_DIR) && go vet ./...
-
-lint-frontend: ## 运行前端 lint
-	cd $(FRONTEND_DIR) && npm run lint
-
-test: ## 运行后端测试
-	cd $(BACKEND_DIR) && go test ./...
 
 # --   - 清理 ---
 

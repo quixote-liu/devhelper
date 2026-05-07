@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"devhelper/internal/config"
@@ -54,17 +55,18 @@ func (s *AuthService) Register(username, email, password string) (*models.User, 
 	return user, tokens, err
 }
 
-func (s *AuthService) Login(email, password string) (*models.User, *TokenPair, error) {
-	user, err := s.userRepo.FindByEmail(email)
+func (s *AuthService) Login(username, password string) (*models.User, *TokenPair, bool, error) {
+	user, err := s.userRepo.FindByUsername(username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, errors.New("invalid credentials")
+			return nil, nil, true, errors.New("invalid credentials")
 		}
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return nil, nil, errors.New("invalid credentials")
+		fmt.Println("compare password error = ", err)
+		return nil, nil, true, errors.New("invalid credentials")
 	}
 
 	now := time.Now()
@@ -72,7 +74,7 @@ func (s *AuthService) Login(email, password string) (*models.User, *TokenPair, e
 	_ = s.userRepo.Update(user)
 
 	tokens, err := s.generateTokens(user)
-	return user, tokens, err
+	return user, tokens, false, err
 }
 
 func (s *AuthService) Refresh(refreshToken string) (*TokenPair, error) {

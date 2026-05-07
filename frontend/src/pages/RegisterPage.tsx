@@ -15,8 +15,9 @@ export function RegisterPage() {
     try {
       await authApi.register(username, email, password)
       navigate('/login')
-    } catch {
-      setError('注册失败，用户名或邮箱可能已存在')
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || '注册失败'
+      setError(msg)
     }
   }
 

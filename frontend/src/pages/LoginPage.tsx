@@ -17,8 +17,9 @@ export function LoginPage() {
       const data = await authApi.login(username, password)
       setTokens(data)
       navigate('/json')
-    } catch {
-      setError('登录失败，请检查用户名和密码')
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || '登录失败'
+      setError(msg)
     }
   }
 
