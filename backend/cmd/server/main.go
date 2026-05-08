@@ -7,7 +7,6 @@ import (
 	"devhelper/internal/config"
 	"devhelper/internal/database"
 	"devhelper/internal/repository"
-	"devhelper/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -39,11 +38,8 @@ func main() {
 	historyRepo := repository.NewHistoryRepo(database.DB)
 	schemaRepo := repository.NewSchemaRepo(database.DB)
 
-	authSvc := service.NewAuthService(userRepo, cfg)
-	jsonSvc := service.NewJsonService()
-
 	r := gin.Default()
-	api.SetupRoutes(r, cfg, authSvc, jsonSvc, userRepo, historyRepo, schemaRepo)
+	api.SetupRoutes(r, cfg, userRepo, historyRepo, schemaRepo)
 
 	if cfg.ServeStatic {
 		log.Printf("serving static files from: %s", cfg.StaticFilesPath)

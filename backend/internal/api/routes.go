@@ -3,7 +3,6 @@ package api
 import (
 	"devhelper/internal/config"
 	"devhelper/internal/repository"
-	"devhelper/internal/service"
 	"path/filepath"
 	"strings"
 
@@ -13,22 +12,15 @@ import (
 func SetupRoutes(
 	r *gin.Engine,
 	cfg *config.Config,
-	authSvc *service.AuthService,
-	jsonSvc *service.JsonService,
-	userRepo *repository.UserRepo,
-	historyRepo *repository.HistoryRepo,
-	schemaRepo *repository.SchemaRepo,
+	userRepo repository.UserRepository,
+	historyRepo repository.HistoryRepository,
+	schemaRepo repository.SchemaRepository,
 ) {
 	// Always apply CORS middleware
 	r.Use(CORSMiddleware(cfg.CORSOrigins))
 
-	// Handle OPTIONS preflight for all routes
-	r.OPTIONS("/*path", func(c *gin.Context) {
-		c.AbortWithStatus(204)
-	})
-
-	authH := NewAuthHandler(authSvc)
-	jsonH := NewJsonHandler(jsonSvc, historyRepo, schemaRepo)
+	authH := NewAuthHandler(userRepo, cfg)
+	jsonH := NewJsonHandler(historyRepo, schemaRepo)
 	adminH := NewAdminHandler(userRepo)
 
 	v1 := r.Group("/api/v1")

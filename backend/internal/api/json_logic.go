@@ -1,4 +1,4 @@
-package service
+package api
 
 import (
 	"encoding/json"
@@ -6,19 +6,17 @@ import (
 	"fmt"
 	"strings"
 
+	"devhelper/internal/utils"
+
 	"gopkg.in/yaml.v2"
 )
 
-type JsonService struct{}
-
-func NewJsonService() *JsonService { return &JsonService{} }
-
-func (s *JsonService) Validate(input string) error {
+func validateJSON(input string) error {
 	var v any
 	return json.Unmarshal([]byte(input), &v)
 }
 
-func (s *JsonService) Format(input string, indent int) (string, error) {
+func formatJSON(input string, indent int) (string, error) {
 	var v any
 	if err := json.Unmarshal([]byte(input), &v); err != nil {
 		return "", err
@@ -28,7 +26,7 @@ func (s *JsonService) Format(input string, indent int) (string, error) {
 	return string(b), err
 }
 
-func (s *JsonService) Minify(input string) (string, error) {
+func minifyJSON(input string) (string, error) {
 	var v any
 	if err := json.Unmarshal([]byte(input), &v); err != nil {
 		return "", err
@@ -37,7 +35,7 @@ func (s *JsonService) Minify(input string) (string, error) {
 	return string(b), err
 }
 
-func (s *JsonService) Convert(input, target string) (string, error) {
+func convertJSON(input, target string) (string, error) {
 	var v any
 	if err := json.Unmarshal([]byte(input), &v); err != nil {
 		return "", fmt.Errorf("invalid JSON: %w", err)
@@ -47,22 +45,22 @@ func (s *JsonService) Convert(input, target string) (string, error) {
 		b, err := yaml.Marshal(v)
 		return string(b), err
 	case "toml":
-		return jsonToTOML(v)
+		return utils.JsonToTOML(v)
 	case "xml":
-		return jsonToXML(v)
+		return utils.JsonToXML(v)
 	default:
 		return "", errors.New("unsupported target format: " + target)
 	}
 }
 
-func (s *JsonService) Parse(input, source string) (string, error) {
+func parseJSON(input, source string) (string, error) {
 	switch strings.ToLower(source) {
 	case "yaml":
 		var v any
 		if err := yaml.Unmarshal([]byte(input), &v); err != nil {
 			return "", err
 		}
-		v = convertYAMLToJSON(v)
+		v = utils.ConvertYAMLToJSON(v)
 		b, err := json.MarshalIndent(v, "", "  ")
 		return string(b), err
 	default:
@@ -70,17 +68,17 @@ func (s *JsonService) Parse(input, source string) (string, error) {
 	}
 }
 
-func (s *JsonService) GenerateSchema(input string) (string, error) {
+func generateSchema(input string) (string, error) {
 	var v any
 	if err := json.Unmarshal([]byte(input), &v); err != nil {
 		return "", err
 	}
-	schema := inferSchema(v)
+	schema := utils.InferSchema(v)
 	b, err := json.MarshalIndent(schema, "", "  ")
 	return string(b), err
 }
 
-func (s *JsonService) ValidateSchema(schemaStr, dataStr string) ([]string, error) {
+func validateSchema(schemaStr, dataStr string) ([]string, error) {
 	var schema, data any
 	if err := json.Unmarshal([]byte(schemaStr), &schema); err != nil {
 		return nil, fmt.Errorf("invalid schema: %w", err)
@@ -88,10 +86,10 @@ func (s *JsonService) ValidateSchema(schemaStr, dataStr string) ([]string, error
 	if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
 		return nil, fmt.Errorf("invalid data: %w", err)
 	}
-	return validateAgainstSchema(schema.(map[string]any), data), nil
+	return utils.ValidateAgainstSchema(schema.(map[string]any), data), nil
 }
 
-func (s *JsonService) Diff(a, b string) (any, error) {
+func diffJSON(a, b string) (any, error) {
 	var va, vb any
 	if err := json.Unmarshal([]byte(a), &va); err != nil {
 		return nil, fmt.Errorf("invalid JSON a: %w", err)
@@ -99,13 +97,13 @@ func (s *JsonService) Diff(a, b string) (any, error) {
 	if err := json.Unmarshal([]byte(b), &vb); err != nil {
 		return nil, fmt.Errorf("invalid JSON b: %w", err)
 	}
-	return diffValues("", va, vb), nil
+	return utils.DiffValues("", va, vb), nil
 }
 
-func (s *JsonService) Query(input, path string) (any, error) {
+func queryJSON(input, path string) (any, error) {
 	var v any
 	if err := json.Unmarshal([]byte(input), &v); err != nil {
 		return nil, err
 	}
-	return jsonPath(v, path)
+	return utils.JsonPath(v, path)
 }

@@ -8,15 +8,15 @@ import (
 )
 
 type Config struct {
-	DBPath            string
-	JWTSecret         string
-	JWTAccessExpiry   time.Duration
-	JWTRefreshExpiry  time.Duration
-	ServerPort        string
-	CORSOrigins       string
-	AdminInitEmail    string
-	ServeStatic       bool
-	StaticFilesPath   string
+	DBPath           string
+	JWTSecret        string
+	JWTAccessExpiry  time.Duration
+	JWTRefreshExpiry time.Duration
+	ServerPort       string
+	CORSOrigins      string
+	AdminInitEmail   string
+	ServeStatic      bool
+	StaticFilesPath  string
 }
 
 func Load() (*Config, error) {
@@ -40,7 +40,7 @@ func Load() (*Config, error) {
 		CORSOrigins:      getEnv("CORS_ORIGINS", "http://localhost:5173"),
 		AdminInitEmail:   getEnv("ADMIN_INIT_EMAIL", ""),
 		ServeStatic:      getEnv("SERVE_STATIC", "false") == "true",
-		StaticFilesPath:  getEnv("STATIC_FILES_PATH", "../frontend/dist"),
+		StaticFilesPath:  getEnv("STATIC_FILES_PATH", "./dist"),
 	}, nil
 }
 

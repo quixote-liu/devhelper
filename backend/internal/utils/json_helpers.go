@@ -1,12 +1,12 @@
-package service
+package utils
 
 import (
 	"fmt"
 	"strings"
 )
 
-// inferSchema generates a basic JSON Schema from a value.
-func inferSchema(v any) map[string]any {
+// InferSchema generates a basic JSON Schema from a value.
+func InferSchema(v any) map[string]any {
 	schema := map[string]any{"$schema": "http://json-schema.org/draft-07/schema#"}
 	fillSchema(schema, v)
 	return schema
@@ -50,8 +50,8 @@ func fillSchema(s map[string]any, v any) {
 	}
 }
 
-// validateAgainstSchema performs basic JSON Schema validation.
-func validateAgainstSchema(schema map[string]any, data any) []string {
+// ValidateAgainstSchema performs basic JSON Schema validation.
+func ValidateAgainstSchema(schema map[string]any, data any) []string {
 	var errs []string
 	validateValue(schema, data, "$", &errs)
 	return errs
@@ -109,7 +109,7 @@ func validateValue(schema map[string]any, data any, path string, errs *[]string)
 	}
 }
 
-// diffValues computes a structural diff between two JSON values.
+// DiffEntry represents a single diff entry between two JSON values.
 type DiffEntry struct {
 	Path string `json:"path"`
 	Type string `json:"type"` // "added", "removed", "changed"
@@ -117,7 +117,8 @@ type DiffEntry struct {
 	New  any    `json:"new,omitempty"`
 }
 
-func diffValues(path string, a, b any) []DiffEntry {
+// DiffValues computes a structural diff between two JSON values.
+func DiffValues(path string, a, b any) []DiffEntry {
 	var diffs []DiffEntry
 	aMap, aIsMap := a.(map[string]any)
 	bMap, bIsMap := b.(map[string]any)
@@ -126,7 +127,7 @@ func diffValues(path string, a, b any) []DiffEntry {
 		for k, av := range aMap {
 			p := path + "." + k
 			if bv, ok := bMap[k]; ok {
-				diffs = append(diffs, diffValues(p, av, bv)...)
+				diffs = append(diffs, DiffValues(p, av, bv)...)
 			} else {
 				diffs = append(diffs, DiffEntry{Path: p, Type: "removed", Old: av})
 			}
@@ -145,8 +146,8 @@ func diffValues(path string, a, b any) []DiffEntry {
 	return diffs
 }
 
-// jsonPath evaluates a simple dot-notation path like $.store.book[0].title
-func jsonPath(v any, path string) (any, error) {
+// JsonPath evaluates a simple dot-notation path like $.store.book[0].title
+func JsonPath(v any, path string) (any, error) {
 	path = strings.TrimPrefix(path, "$")
 	parts := tokenizePath(path)
 	return traversePath(v, parts)
@@ -159,14 +160,12 @@ func tokenizePath(path string) []string {
 		if p == "" {
 			continue
 		}
-		// Handle array index: key[0]
 		if idx := strings.Index(p, "["); idx != -1 {
 			key := p[:idx]
 			rest := p[idx:]
 			if key != "" {
 				parts = append(parts, key)
 			}
-			// Extract all [n] indices
 			for rest != "" {
 				end := strings.Index(rest, "]")
 				if end == -1 {
@@ -208,18 +207,18 @@ func traversePath(v any, parts []string) (any, error) {
 	}
 }
 
-// convertYAMLToJSON converts yaml.v2 map types to JSON-compatible map[string]any.
-func convertYAMLToJSON(v any) any {
+// ConvertYAMLToJSON converts yaml.v2 map types to JSON-compatible map[string]any.
+func ConvertYAMLToJSON(v any) any {
 	switch val := v.(type) {
 	case map[any]any:
 		m := map[string]any{}
 		for k, child := range val {
-			m[fmt.Sprint(k)] = convertYAMLToJSON(child)
+			m[fmt.Sprint(k)] = ConvertYAMLToJSON(child)
 		}
 		return m
 	case []any:
 		for i, item := range val {
-			val[i] = convertYAMLToJSON(item)
+			val[i] = ConvertYAMLToJSON(item)
 		}
 		return val
 	default:
@@ -227,8 +226,8 @@ func convertYAMLToJSON(v any) any {
 	}
 }
 
-// jsonToTOML produces a simple TOML representation (key = value pairs, no nested tables).
-func jsonToTOML(v any) (string, error) {
+// JsonToTOML produces a simple TOML representation.
+func JsonToTOML(v any) (string, error) {
 	obj, ok := v.(map[string]any)
 	if !ok {
 		return "", fmt.Errorf("TOML conversion requires a JSON object at the root")
@@ -262,8 +261,8 @@ func writeTOMLSection(sb *strings.Builder, obj map[string]any, prefix string) {
 	}
 }
 
-// jsonToXML produces a simple XML representation.
-func jsonToXML(v any) (string, error) {
+// JsonToXML produces a simple XML representation.
+func JsonToXML(v any) (string, error) {
 	var sb strings.Builder
 	sb.WriteString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 	sb.WriteString("<root>\n")

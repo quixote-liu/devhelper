@@ -6,6 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type HistoryRepository interface {
+	Create(h *models.JsonHistory) error
+	ListBySession(userID uint, sessionID string) ([]models.JsonHistory, error)
+	FindByID(id, userID uint) (*models.JsonHistory, error)
+	Delete(id, userID uint) error
+	NextSeqNum(userID uint, sessionID string) int
+	HasBase(userID uint, sessionID string) bool
+}
+
 const maxHistoryPerSession = 50
 
 type HistoryRepo struct {

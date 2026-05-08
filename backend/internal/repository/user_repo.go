@@ -6,6 +6,17 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserRepository interface {
+	Create(u *models.User) error
+	FindByEmail(email string) (*models.User, error)
+	FindByID(id uint) (*models.User, error)
+	FindByUsername(username string) (*models.User, error)
+	Update(u *models.User) error
+	Delete(id uint) error
+	List(page, pageSize int, search string) ([]models.User, int64, error)
+	SetAdminByEmail(email string) error
+}
+
 type UserRepo struct {
 	db *gorm.DB
 }

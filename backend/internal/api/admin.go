@@ -14,10 +14,10 @@ import (
 )
 
 type AdminHandler struct {
-	userRepo *repository.UserRepo
+	userRepo repository.UserRepository
 }
 
-func NewAdminHandler(userRepo *repository.UserRepo) *AdminHandler {
+func NewAdminHandler(userRepo repository.UserRepository) *AdminHandler {
 	return &AdminHandler{userRepo: userRepo}
 }
 
@@ -149,7 +149,7 @@ type updateProfileReq struct {
 	Email    string `json:"email"`
 }
 
-func UpdateProfile(userRepo *repository.UserRepo) gin.HandlerFunc {
+func UpdateProfile(userRepo repository.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, _ := c.Get("user_id")
 		user, err := userRepo.FindByID(userID.(uint))
@@ -177,7 +177,7 @@ func UpdateProfile(userRepo *repository.UserRepo) gin.HandlerFunc {
 }
 
 // ChangePassword allows users to change their own password
-func ChangePassword(userRepo *repository.UserRepo) gin.HandlerFunc {
+func ChangePassword(userRepo repository.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, _ := c.Get("user_id")
 		user, err := userRepo.FindByID(userID.(uint))
@@ -212,7 +212,7 @@ func ChangePassword(userRepo *repository.UserRepo) gin.HandlerFunc {
 }
 
 // DeleteAccount allows users to delete their own account
-func DeleteAccount(userRepo *repository.UserRepo) gin.HandlerFunc {
+func DeleteAccount(userRepo repository.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, _ := c.Get("user_id")
 		var req struct {

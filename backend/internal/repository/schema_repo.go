@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type SchemaRepository interface {
+	Create(s *models.JsonSchema) error
+	List(userID uint) ([]models.JsonSchema, error)
+	FindByID(id, userID uint) (*models.JsonSchema, error)
+	Update(s *models.JsonSchema) error
+	Delete(id, userID uint) error
+}
+
 type SchemaRepo struct {
 	db *gorm.DB
 }

@@ -3,20 +3,18 @@ package api
 import (
 	"devhelper/internal/models"
 	"devhelper/internal/repository"
-	"devhelper/internal/service"
 	"devhelper/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 type JsonHandler struct {
-	svc         *service.JsonService
-	historyRepo *repository.HistoryRepo
-	schemaRepo  *repository.SchemaRepo
+	historyRepo repository.HistoryRepository
+	schemaRepo  repository.SchemaRepository
 }
 
-func NewJsonHandler(svc *service.JsonService, hr *repository.HistoryRepo, sr *repository.SchemaRepo) *JsonHandler {
-	return &JsonHandler{svc: svc, historyRepo: hr, schemaRepo: sr}
+func NewJsonHandler(hr repository.HistoryRepository, sr repository.SchemaRepository) *JsonHandler {
+	return &JsonHandler{historyRepo: hr, schemaRepo: sr}
 }
 
 type jsonInput struct {
@@ -54,7 +52,7 @@ func (h *JsonHandler) Validate(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	if err := h.svc.Validate(req.JSON); err != nil {
+	if err := validateJSON(req.JSON); err != nil {
 		utils.OK(c, gin.H{"valid": false, "error": err.Error()})
 		return
 	}
@@ -73,7 +71,7 @@ func (h *JsonHandler) Format(c *gin.Context) {
 	if req.Indent == 0 {
 		req.Indent = 2
 	}
-	result, err := h.svc.Format(req.JSON, req.Indent)
+	result, err := formatJSON(req.JSON, req.Indent)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
@@ -87,7 +85,7 @@ func (h *JsonHandler) Minify(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	result, err := h.svc.Minify(req.JSON)
+	result, err := minifyJSON(req.JSON)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
@@ -101,7 +99,7 @@ func (h *JsonHandler) Convert(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	result, err := h.svc.Convert(req.JSON, req.Target)
+	result, err := convertJSON(req.JSON, req.Target)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
@@ -115,7 +113,7 @@ func (h *JsonHandler) Parse(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	result, err := h.svc.Parse(req.Content, req.Source)
+	result, err := parseJSON(req.Content, req.Source)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
@@ -129,7 +127,7 @@ func (h *JsonHandler) GenerateSchema(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	result, err := h.svc.GenerateSchema(req.JSON)
+	result, err := generateSchema(req.JSON)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
@@ -143,7 +141,7 @@ func (h *JsonHandler) ValidateSchema(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	errs, err := h.svc.ValidateSchema(req.Schema, req.Data)
+	errs, err := validateSchema(req.Schema, req.Data)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
@@ -157,7 +155,7 @@ func (h *JsonHandler) Diff(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	result, err := h.svc.Diff(req.A, req.B)
+	result, err := diffJSON(req.A, req.B)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
@@ -171,7 +169,7 @@ func (h *JsonHandler) Query(c *gin.Context) {
 		utils.BadRequest(c, err.Error())
 		return
 	}
-	result, err := h.svc.Query(req.JSON, req.Path)
+	result, err := queryJSON(req.JSON, req.Path)
 	if err != nil {
 		utils.BadRequest(c, err.Error())
 		return
