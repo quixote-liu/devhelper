@@ -12,7 +12,7 @@ export function DiffTool() {
     setError('')
     try {
       const res = await jsonApi.diff(left, right)
-      setResult(JSON.stringify(res, null, 2))
+      setResult(JSON.stringify(res.diff, null, 2))
     } catch {
       setError('比较失败，请检查 JSON 格式')
     }

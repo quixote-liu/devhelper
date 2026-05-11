@@ -20,7 +20,7 @@ export function SchemaTool() {
   const handleValidate = async () => {
     setError('')
     try {
-      await jsonApi.validateSchema(input, schema)
+      await jsonApi.validateSchema(schema, input)
       setOutput('✓ 数据符合 Schema')
     } catch {
       setError('验证失败，数据不符合 Schema')

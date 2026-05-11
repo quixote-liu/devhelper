@@ -11,7 +11,7 @@ export function FormatTool() {
     setError('')
     try {
       const res = await jsonApi.format(input, indent)
-      setOutput(res.formatted)
+      setOutput(res.result)
     } catch {
       setError('格式化失败，请检查 JSON 格式')
     }
@@ -21,7 +21,7 @@ export function FormatTool() {
     setError('')
     try {
       const res = await jsonApi.minify(input)
-      setOutput(res.minified)
+      setOutput(res.result)
     } catch {
       setError('压缩失败，请检查 JSON 格式')
     }

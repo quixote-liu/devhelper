@@ -15,7 +15,7 @@ export function LoginPage() {
     setError('')
     try {
       const data = await authApi.login(username, password)
-      setTokens(data)
+      setTokens({ ...data.tokens, user: data.user })
       navigate('/json')
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || '登录失败'

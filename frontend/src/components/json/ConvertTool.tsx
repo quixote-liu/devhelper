@@ -12,11 +12,11 @@ export function ConvertTool() {
     setError('')
     try {
       if (from === 'json') {
-        const res = await jsonApi.convert(input, from, to)
-        setOutput(res.converted)
+        const res = await jsonApi.convert(input, to)
+        setOutput(res.result)
       } else {
         const res = await jsonApi.parse(input, from)
-        setOutput(res.parsed)
+        setOutput(res.result)
       }
     } catch {
       setError('转换失败，请检查输入格式')
